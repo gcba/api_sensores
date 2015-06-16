@@ -3,6 +3,7 @@ import login_config
 import urllib
 import urllib2
 import json
+import sys
 # import time
 # import httplib
 # import os
@@ -27,15 +28,12 @@ class APIEndpoint:
         response = urllib2.urlopen(request).read()
         json_response = json.loads(response)
 
-        print "%s %s" % (config['method'], config['url'])
-        print "%s %s" % (json_response['codigo'], json_response['mensaje'])
+        sys.stdout.write("%s %s\n" % (config['method'], config['url']))
+        sys.stdout.write("%s %s\n" % (json_response['codigo'], json_response['mensaje']))
         if len(json_response['error']) > 0:
-            print json_response['error']
+            sys.stdout.write(json_response['error'] + '\n')
 
         return json_response
-
-    def __repr__(self):
-        return str(self.attrs)
 
 
 class APISensor(APIEndpoint):
@@ -47,9 +45,9 @@ class APISensor(APIEndpoint):
         return cls(response['datos'])
 
     @classmethod
-    def change_state(cls):
-        # TODO
-        return
+    def change_state(cls, params):
+        response = cls.request(cls.config['change_state'], params)
+        return response
 
     @classmethod
     def get(cls, sensor_id):
@@ -67,19 +65,22 @@ class APISensor(APIEndpoint):
         return sensors
 
     @classmethod
-    def delete(cls):
-        # TODO
-        return
+    def delete(cls, params):
+        response = cls.request(cls.config['delete'], params)
+        return response
 
     @classmethod
-    def update(cls):
-        # TODO
-        return
+    def update(cls, params):
+        response = cls.request(cls.config['update'], params)
+        return response
 
     @classmethod
     def get_all_with_datatypes(cls):
-        # TODO
-        return
+        response = cls.request(cls.config['get_all_with_datatypes'])
+        sensors = []
+        for sensor in response['datos']:
+            sensors.append(cls(sensor))
+        return sensors
 
-    def __str__(self):
+    def __repr__(self):
         return 'Sensor<%d, %s>' % (self.attrs['id'], self.attrs['nombre'])
