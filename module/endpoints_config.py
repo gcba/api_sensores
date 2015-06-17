@@ -1,4 +1,29 @@
 base_url = "https://apisensores.buenosaires.gob.ar/app_dev.php"
+cuenta = {
+    "get_all": {
+        "method": "GET",
+        "url": "%s/api/cuenta" % base_url
+    },
+    "create": {
+        "method": "POST",
+        "url": "%s/api/cuenta/create" % base_url
+
+    },
+    "get": {
+        "method": "GET",
+        "url": "%s/api/cuenta/{id}" % base_url
+    },
+    "delete": {
+        "method": "PUT",
+        "url": "%s/api/cuenta/{id}/baja" % base_url
+
+    },
+    "update": {
+        "method": "PUT",
+        "url": "%s/api/cuenta/{id}/update" % base_url
+
+    }
+}
 sensor = {
     "change_state": {
         "method": "PUT",

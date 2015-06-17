@@ -12,6 +12,8 @@ import sys
 
 
 class APIEndpoint:
+    config = {}
+
     def __init__(self, attrs):
         self.attrs = attrs
 
@@ -31,13 +33,11 @@ class APIEndpoint:
         sys.stdout.write("%s %s\n" % (config['method'], config['url']))
         sys.stdout.write("%s %s\n" % (json_response['codigo'], json_response['mensaje']))
         if len(json_response['error']) > 0:
-            sys.stdout.write(json_response['error'] + '\n')
+            sys.stdout.write(str(json_response['error']) + '\n')
 
         return json_response
 
-
-class APISensor(APIEndpoint):
-    config = endpoints_config.sensor
+    # --Generic methods --
 
     @classmethod
     def create(cls, attrs):
@@ -45,24 +45,19 @@ class APISensor(APIEndpoint):
         return cls(response['datos'])
 
     @classmethod
-    def change_state(cls, params):
-        response = cls.request(cls.config['change_state'], params)
-        return response
-
-    @classmethod
-    def get(cls, sensor_id):
+    def get(cls, obj_id):
         get_config = cls.config['get'].copy()
-        get_config['url'] = get_config['url'].replace('{id}', str(sensor_id))
+        get_config['url'] = get_config['url'].replace('{id}', str(obj_id))
         response = cls.request(get_config)
         return cls(response['datos'])
 
     @classmethod
     def get_all(cls):
         response = cls.request(cls.config['get_all'])
-        sensors = []
-        for sensor in response['datos']:
-            sensors.append(cls(sensor))
-        return sensors
+        objects = []
+        for obj in response['datos']:
+            objects.append(cls(obj))
+        return objects
 
     @classmethod
     def delete(cls, params):
@@ -72,6 +67,21 @@ class APISensor(APIEndpoint):
     @classmethod
     def update(cls, params):
         response = cls.request(cls.config['update'], params)
+        return response
+
+
+class APICuenta(APIEndpoint):
+    config = endpoints_config.cuenta
+
+    def __repr__(self):
+        return 'Cuenta<%d, %s>' % (self.attrs['id'], self.attrs['nombre'])
+
+class APISensor(APIEndpoint):
+    config = endpoints_config.sensor
+
+    @classmethod
+    def change_state(cls, params):
+        response = cls.request(cls.config['change_state'], params)
         return response
 
     @classmethod
