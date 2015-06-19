@@ -4,18 +4,15 @@ import urllib
 import urllib2
 import json
 import sys
-# import time
-# import httplib
-# import os
-# from datetime import datetime
-# import types
 
 
-class APIEndpoint:
+class Endpoint:
     config = {}
+    actions = ['create', 'get', 'get_all', 'delete', 'update']
 
     def __init__(self, attrs):
         self.attrs = attrs
+        self.actions = ['save', 'remove']
 
     @staticmethod
     def request(config, params=None):
@@ -33,14 +30,14 @@ class APIEndpoint:
         sys.stdout.write("%s %s\n" % (config['method'], config['url']))
         sys.stdout.write("%s %s\n" % (json_response['codigo'], json_response['mensaje']))
         if len(json_response['error']) > 0:
-            sys.stdout.write(str(json_response['error']) + '\n')
+            raise ValueError(str(json_response['error']) + '\n')
 
         return json_response
 
     # --Generic methods --
 
     @classmethod
-    def create(cls, attrs):
+    def create(cls, attrs=None):
         response = cls.request(cls.config['create'], attrs)
         return cls(response['datos'])
 
@@ -60,24 +57,36 @@ class APIEndpoint:
         return objects
 
     @classmethod
-    def delete(cls, params):
-        response = cls.request(cls.config['delete'], params)
+    def delete(cls, obj_id):
+        delete_config = cls.config['delete'].copy()
+        delete_config['url'] = delete_config['url'].replace('{id}', str(obj_id))
+        response = cls.request(delete_config)
         return response
 
     @classmethod
     def update(cls, params):
-        response = cls.request(cls.config['update'], params)
+        update_config = cls.config['update'].copy()
+        update_config['url'] = update_config['url'].replace('{id}', str(params['id']))
+        response = cls.request(update_config, params)
         return response
 
+    def save(self):
+        return self.update(self.attrs)
 
-class APICuenta(APIEndpoint):
+    def remove(self):
+        return self.delete(self.attrs['id'])
+
+
+class Account(Endpoint):
     config = endpoints_config.cuenta
 
     def __repr__(self):
         return 'Cuenta<%d, %s>' % (self.attrs['id'], self.attrs['nombre'])
 
-class APISensor(APIEndpoint):
+
+class Sensor(Endpoint):
     config = endpoints_config.sensor
+    actions = Endpoint.actions + ['change_state', 'get_all_with_datatypes']
 
     @classmethod
     def change_state(cls, params):
