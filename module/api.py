@@ -9,6 +9,7 @@ import sys
 class Endpoint:
     config = {}
     actions = ['create', 'get', 'get_all', 'delete', 'update']
+    print_name = "API Endpoint"
 
     def __init__(self, attrs):
         self.attrs = attrs
@@ -76,17 +77,19 @@ class Endpoint:
     def remove(self):
         return self.delete(self.attrs['id'])
 
+    def __repr__(self):
+        return '%s<%d, %s>' % (self.print_name, self.attrs['id'], self.attrs['nombre'])
+
 
 class Account(Endpoint):
     config = endpoints_config.account
-
-    def __repr__(self):
-        return 'Cuenta<%d, %s>' % (self.attrs['id'], self.attrs['nombre'])
+    print_name = "Account"
 
 
 class Sensor(Endpoint):
     config = endpoints_config.sensor
     actions = Endpoint.actions + ['change_state', 'get_all_with_datatypes']
+    print_name = "Sensor"
 
     @classmethod
     def change_state(cls, params):
@@ -101,18 +104,16 @@ class Sensor(Endpoint):
             sensors.append(cls(sensor))
         return sensors
 
-    def __repr__(self):
-        return 'Sensor<%d, %s>' % (self.attrs['id'], self.attrs['nombre'])
-
 
 class DataType(Endpoint):
     config = endpoints_config.datatype
-    actions = ['create', 'get', 'update', 'get_from_sensor_type', 'get_from_sensor']
+    actions = config.keys()
+    name = "Data Type"
 
     @classmethod
     def get_from_sensor_type(cls, sensor_type_id):
         get_config = cls.config['get_from_sensor_type'].copy()
-        get_config['url'] = get_config['url'].replace('{id}', sensor_type_id)
+        get_config['url'] = get_config['url'].replace('{id}', str(sensor_type_id))
         response = cls.request(get_config)
         datatypes = []
         for datatype in response['datos']:
@@ -122,9 +123,23 @@ class DataType(Endpoint):
     @classmethod
     def get_from_sensor(cls, sensor_id):
         get_config = cls.config['get_from_sensor'].copy()
-        get_config['url'] = get_config['url'].replace('{id}', sensor_id)
+        get_config['url'] = get_config['url'].replace('{id}', str(sensor_id))
         response = cls.request(get_config)
         datatypes = []
         for datatype in response['datos']:
             datatypes.append(cls(datatype))
         return datatypes
+
+
+class SensorType(Endpoint):
+    config = endpoints_config.sensor_type
+    actions = config.keys()
+    print_name = "Sensor type"
+
+    @classmethod
+    def get_from_sensor(cls, sensor_id):
+        get_config = cls.config['get_from_sensor'].copy()
+        get_config['url'] = get_config['url'].replace('{id}', str(sensor_id))
+        response = cls.request(get_config)
+        sensor_type = cls(response['datos'])
+        return sensor_type

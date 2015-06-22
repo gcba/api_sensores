@@ -76,7 +76,29 @@ datatype = {
         "url": "%s/api/sensor/{id}/tipo/data_type"
     }
 }
+sensor_type = {
+    "get_all": {
+        "method": "GET",
+        "url": "%s/api/sensor/tipo"
+    },
+    "create": {
+        "method": "POST",
+        "url": "%s/api/sensor/tipo/create"
+    },
+    "get": {
+        "method": "GET",
+        "url": "%s/api/sensor/tipo/{id}"
+    },
+    "update": {
+        "method": "PUT",
+        "url": "%s/api/sensor/tipo/{id}/update"
+    },
+    "get_from_sensor": {
+        "method": "GET",
+        "url": "%s/api/sensor/{id}/tipo"
+    }
+}
 
-for endpoint in [account, sensor, datatype]:
+for endpoint in [account, sensor, datatype, sensor_type]:
     for action in endpoint:
         endpoint[action]['url'] %= base_url
