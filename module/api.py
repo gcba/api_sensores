@@ -78,7 +78,7 @@ class Endpoint:
 
 
 class Account(Endpoint):
-    config = endpoints_config.cuenta
+    config = endpoints_config.account
 
     def __repr__(self):
         return 'Cuenta<%d, %s>' % (self.attrs['id'], self.attrs['nombre'])
@@ -103,3 +103,28 @@ class Sensor(Endpoint):
 
     def __repr__(self):
         return 'Sensor<%d, %s>' % (self.attrs['id'], self.attrs['nombre'])
+
+
+class DataType(Endpoint):
+    config = endpoints_config.datatype
+    actions = ['create', 'get', 'update', 'get_from_sensor_type', 'get_from_sensor']
+
+    @classmethod
+    def get_from_sensor_type(cls, sensor_type_id):
+        get_config = cls.config['get_from_sensor_type'].copy()
+        get_config['url'] = get_config['url'].replace('{id}', sensor_type_id)
+        response = cls.request(get_config)
+        datatypes = []
+        for datatype in response['datos']:
+            datatypes.append(cls(datatype))
+        return datatypes
+
+    @classmethod
+    def get_from_sensor(cls, sensor_id):
+        get_config = cls.config['get_from_sensor'].copy()
+        get_config['url'] = get_config['url'].replace('{id}', sensor_id)
+        response = cls.request(get_config)
+        datatypes = []
+        for datatype in response['datos']:
+            datatypes.append(cls(datatype))
+        return datatypes

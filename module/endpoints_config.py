@@ -1,56 +1,82 @@
 base_url = "https://apisensores.buenosaires.gob.ar/app_dev.php"
-cuenta = {
+account = {
     "get_all": {
         "method": "GET",
-        "url": "%s/api/cuenta" % base_url
+        "url": "%s/api/cuenta"
     },
     "create": {
         "method": "POST",
-        "url": "%s/api/cuenta/create" % base_url
+        "url": "%s/api/cuenta/create"
 
     },
     "get": {
         "method": "GET",
-        "url": "%s/api/cuenta/{id}" % base_url
+        "url": "%s/api/cuenta/{id}"
     },
     "delete": {
         "method": "PUT",
-        "url": "%s/api/cuenta/{id}/baja" % base_url
+        "url": "%s/api/cuenta/{id}/baja"
 
     },
     "update": {
         "method": "PUT",
-        "url": "%s/api/cuenta/{id}/update" % base_url
+        "url": "%s/api/cuenta/{id}/update"
 
     }
 }
 sensor = {
     "change_state": {
         "method": "PUT",
-        "url": "%s/api/sensor/cambiarestado" % base_url
+        "url": "%s/api/sensor/cambiarestado"
     },
     "create": {
         "method": "POST",
-        "url": "%s/api/sensor/create" % base_url
+        "url": "%s/api/sensor/create"
     },
     "get": {
         "method": "GET",
-        "url": "%s/api/sensor/{id}" % base_url
+        "url": "%s/api/sensor/{id}"
     },
     "delete": {
         "method": "PUT",
-        "url": "%s/api/sensor/{id}/baja" % base_url
+        "url": "%s/api/sensor/{id}/baja"
     },
     "update": {
         "method": "PUT",
-        "url": "%s/api/sensor/{id}/update" % base_url
+        "url": "%s/api/sensor/{id}/update"
     },
     "get_all": {
         "method": "GET",
-        "url": "%s/api/sensores" % base_url
+        "url": "%s/api/sensores"
     },
     "get_all_with_datatypes": {
         "method": "GET",
-        "url": "%s/api/sensorestipodato" % base_url
+        "url": "%s/api/sensorestipodato"
     }
 }
+datatype = {
+    "create": {
+        "method": "POST",
+        "url": "%s/api/sensor/tipo/data_type/create"
+    },
+    "get": {
+        "method": "GET",
+        "url": "%s/api/sensor/tipo/data_type/{id}"
+    },
+    "update": {
+        "method": "PUT",
+        "url": "%s/api/sensor/tipo/data_type/{id}/update"
+    },
+    "get_from_sensor_type": {
+        "method": "GET",
+        "url": "%s/api/sensor/tipo/{id}/data_type"
+    },
+    "get_from_sensor": {
+        "method": "GET",
+        "url": "%s/api/sensor/{id}/tipo/data_type"
+    }
+}
+
+for endpoint in [account, sensor, datatype]:
+    for action in endpoint:
+        endpoint[action]['url'] %= base_url
