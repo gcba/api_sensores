@@ -98,7 +98,29 @@ sensor_type = {
         "url": "%s/api/sensor/{id}/tipo"
     }
 }
+data = {
+    "create": {
+        "method": "POST",
+        "url": "%s/api/data/create"
+    },
+    "dynamic_create": {
+        "method": "POST",
+        "url": "%s/api/data/dynamic/create"
+    },
+    "get": {
+        "method": "GET",
+        "url": "%s/api/data/{id}"
+    },
+    "get_last": {
+        "method": "GET",
+        "url": "%s/api/data/{id}/last"
+    },
+    "get_multiple_lasts": {
+        "method": "GET",
+        "url": "%s/api/data/{id}/status"
+    }
+}
 
-for endpoint in [account, sensor, datatype, sensor_type]:
+for endpoint in [account, sensor, datatype, sensor_type, data]:
     for action in endpoint:
         endpoint[action]['url'] %= base_url

@@ -5,8 +5,10 @@ import urllib2
 import json
 import sys
 
+log_requests = False
 
-class Endpoint:
+
+class Endpoint(object):
     config = {}
     actions = ['create', 'get', 'get_all', 'delete', 'update']
     print_name = "API Endpoint"
@@ -28,14 +30,19 @@ class Endpoint:
         response = urllib2.urlopen(request).read()
         json_response = json.loads(response)
 
-        sys.stdout.write("%s %s\n" % (config['method'], config['url']))
-        sys.stdout.write("%s %s\n" % (json_response['codigo'], json_response['mensaje']))
+        if log_requests:
+            sys.stdout.write("%s %s\n" % (config['method'], config['url']))
+            sys.stdout.write("%s %s\n" % (json_response['codigo'], json_response['mensaje']))
         if len(json_response['error']) > 0:
             raise ValueError(str(json_response['error']) + '\n')
 
         return json_response
 
-    # --Generic methods --
+    @classmethod
+    def _replace_id(cls, endpoint_name, obj_id):
+        config_copy = cls.config[endpoint_name].copy()
+        config_copy['url'] = config_copy['url'].replace('{id}', str(obj_id))
+        return config_copy
 
     @classmethod
     def create(cls, attrs=None):
@@ -44,8 +51,7 @@ class Endpoint:
 
     @classmethod
     def get(cls, obj_id):
-        get_config = cls.config['get'].copy()
-        get_config['url'] = get_config['url'].replace('{id}', str(obj_id))
+        get_config = cls._replace_id('get', obj_id)
         response = cls.request(get_config)
         return cls(response['datos'])
 
@@ -59,15 +65,13 @@ class Endpoint:
 
     @classmethod
     def delete(cls, obj_id):
-        delete_config = cls.config['delete'].copy()
-        delete_config['url'] = delete_config['url'].replace('{id}', str(obj_id))
+        delete_config = cls._replace_id('delete', obj_id)
         response = cls.request(delete_config)
         return response
 
     @classmethod
     def update(cls, params):
-        update_config = cls.config['update'].copy()
-        update_config['url'] = update_config['url'].replace('{id}', str(params['id']))
+        update_config = cls._replace_id('update', params['id'])
         response = cls.request(update_config, params)
         return response
 
@@ -104,16 +108,24 @@ class Sensor(Endpoint):
             sensors.append(cls(sensor))
         return sensors
 
+    def get_datatypes(self):
+        return DataType.get_from_sensor(self.attrs['id'])
+
+    def get_last_data(self):
+        return Data.get_last(self.attrs['id'])
+
+    def get_multiple_last_data(self):
+        return Data.get_multiple_lasts(self.attrs['id'])
+
 
 class DataType(Endpoint):
     config = endpoints_config.datatype
     actions = config.keys()
-    name = "Data Type"
+    print_name = "DataType"
 
     @classmethod
     def get_from_sensor_type(cls, sensor_type_id):
-        get_config = cls.config['get_from_sensor_type'].copy()
-        get_config['url'] = get_config['url'].replace('{id}', str(sensor_type_id))
+        get_config = cls._replace_id('get_from_sensor_type', sensor_type_id)
         response = cls.request(get_config)
         datatypes = []
         for datatype in response['datos']:
@@ -122,8 +134,7 @@ class DataType(Endpoint):
 
     @classmethod
     def get_from_sensor(cls, sensor_id):
-        get_config = cls.config['get_from_sensor'].copy()
-        get_config['url'] = get_config['url'].replace('{id}', str(sensor_id))
+        get_config = cls._replace_id('get_from_sensor', sensor_id)
         response = cls.request(get_config)
         datatypes = []
         for datatype in response['datos']:
@@ -134,12 +145,51 @@ class DataType(Endpoint):
 class SensorType(Endpoint):
     config = endpoints_config.sensor_type
     actions = config.keys()
-    print_name = "Sensor type"
+    print_name = "SensorType"
 
     @classmethod
     def get_from_sensor(cls, sensor_id):
-        get_config = cls.config['get_from_sensor'].copy()
-        get_config['url'] = get_config['url'].replace('{id}', str(sensor_id))
+        get_config = cls._replace_id('get_from_sensor', sensor_id)
         response = cls.request(get_config)
         sensor_type = cls(response['datos'])
         return sensor_type
+
+
+class Data(Endpoint):
+    config = endpoints_config.data
+    actions = config.keys()
+    print_name = 'Data'
+
+    def __init__(self, attrs):
+        super(Data, self).__init__(attrs)
+        self.empty = len(self.attrs) == 0
+
+    @classmethod
+    def dynamic_create(cls, params):
+        # TODO: bad request 400 cuando el tipo de dato no matchea del todo
+        # Ej:
+        # data = api.Data.create({'id': 3, 'data':23.0, 'datatype': 'irms'}) OK
+        # data = api.Data.create({'id': 3, 'data':23, 'datatype': 'irms'}) 400
+        response = cls.request(cls.config['dynamic_create'], params)
+        return response
+
+    @classmethod
+    def get_last(cls, sensor_id):
+        get_last_config = cls._replace_id('get_last', sensor_id)
+        response = cls.request(get_last_config)
+        return cls(response['datos'])
+
+    @classmethod
+    def get_multiple_lasts(cls, sensor_id, params=None):
+        get_multiple_lasts_config = cls._replace_id('get_multiple_lasts', sensor_id)
+        response = cls.request(get_multiple_lasts_config, params)
+        data = []
+        for d in response['datos']:
+            data.append(cls(d))
+        return data
+
+    def __repr__(self):
+        if self.empty:
+            return '%s<Empty>' % self.print_name
+        else:
+            return '%s<%s, %s>' % (self.print_name, self.attrs['date'], self.attrs['data'])
