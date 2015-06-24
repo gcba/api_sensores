@@ -10,12 +10,9 @@ log_requests = False
 
 class Endpoint(object):
     config = {}
-    actions = ['create', 'get', 'get_all', 'delete', 'update']
-    print_name = "API Endpoint"
 
     def __init__(self, attrs):
         self.attrs = attrs
-        self.actions = ['save', 'remove']
 
     @staticmethod
     def request(config, params=None):
@@ -82,18 +79,15 @@ class Endpoint(object):
         return self.delete(self.attrs['id'])
 
     def __repr__(self):
-        return '%s<%d, %s>' % (self.print_name, self.attrs['id'], self.attrs['nombre'])
+        return '%s<%d, %s>' % (self.__class__.__name__, self.attrs['id'], self.attrs['nombre'])
 
 
 class Account(Endpoint):
     config = endpoints_config.account
-    print_name = "Account"
 
 
 class Sensor(Endpoint):
     config = endpoints_config.sensor
-    actions = Endpoint.actions + ['change_state', 'get_all_with_datatypes']
-    print_name = "Sensor"
 
     @classmethod
     def change_state(cls, params):
@@ -120,8 +114,6 @@ class Sensor(Endpoint):
 
 class DataType(Endpoint):
     config = endpoints_config.datatype
-    actions = config.keys()
-    print_name = "DataType"
 
     @classmethod
     def get_from_sensor_type(cls, sensor_type_id):
@@ -144,8 +136,6 @@ class DataType(Endpoint):
 
 class SensorType(Endpoint):
     config = endpoints_config.sensor_type
-    actions = config.keys()
-    print_name = "SensorType"
 
     @classmethod
     def get_from_sensor(cls, sensor_id):
@@ -157,8 +147,6 @@ class SensorType(Endpoint):
 
 class Data(Endpoint):
     config = endpoints_config.data
-    actions = config.keys()
-    print_name = 'Data'
 
     def __init__(self, attrs):
         super(Data, self).__init__(attrs)
@@ -190,6 +178,6 @@ class Data(Endpoint):
 
     def __repr__(self):
         if self.empty:
-            return '%s<Empty>' % self.print_name
+            return '%s<Empty>' % self.__class__.__name__
         else:
-            return '%s<%s, %s>' % (self.print_name, self.attrs['date'], self.attrs['data'])
+            return '%s<%s, %s>' % (self.__class__.__name__, self.attrs['date'], self.attrs['data'])
