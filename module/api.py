@@ -30,6 +30,8 @@ class Endpoint(object):
         if log_requests:
             sys.stdout.write("%s %s\n" % (config['method'], config['url']))
             sys.stdout.write("%s %s\n" % (json_response['codigo'], json_response['mensaje']))
+            sys.stdout.write("%d bytes sent in the request's body\n" % sys.getsizeof(data))
+            sys.stdout.write("%d bytes received response's body\n" % sys.getsizeof(response))
         if len(json_response['error']) > 0:
             raise ValueError(str(json_response['error']) + '\n')
 
