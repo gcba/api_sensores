@@ -1,10 +1,13 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import endpoints_config
 import urllib
 import urllib2
 import json
 import sys
 
-log_requests = True
+log_requests = False
 token = 'token'
 
 
@@ -81,7 +84,7 @@ class Endpoint(object):
         return self.delete(self.attrs['id'])
 
     def __repr__(self):
-        return '%s<%d, %s>' % (self.__class__.__name__, self.attrs['id'], self.attrs['nombre'])
+        return '%s<%d, %s>' % (self.__class__.__name__, int(self.attrs['id']), self.attrs['nombre'])
 
 
 class Account(Endpoint):
@@ -167,7 +170,7 @@ class Data(Endpoint):
     def get_last(cls, sensor_id):
         get_last_config = cls._replace_id('get_last', sensor_id)
         response = cls.request(get_last_config)
-        return cls(response['datos'])
+        return cls(response['datos'][0])
 
     @classmethod
     def get_multiple_lasts(cls, sensor_id, params=None):
