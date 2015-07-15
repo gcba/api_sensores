@@ -181,6 +181,15 @@ class Data(Endpoint):
             data.append(cls(d))
         return data
 
+    @classmethod
+    def get(cls, sensor_id, params=None):
+        get_config = cls._replace_id('get', sensor_id)
+        response = cls.request(get_config, params)
+        data = []
+        for d in response['datos']['data']:
+            data.append(cls(d))
+        return data
+
     def __repr__(self):
         if self.empty:
             return '%s<Empty>' % self.__class__.__name__
