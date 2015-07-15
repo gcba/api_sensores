@@ -22,8 +22,12 @@ class Endpoint(object):
         params = params or {}
         params['_format'] = 'json'
         data = urllib.urlencode(params)
-
-        request = urllib2.Request(config['url'], data, {'Content-Type': 'application/x-www-form-urlencoded'})
+        if config['method'] == 'GET':
+            url = config['url'] + '?' + data
+            request = urllib2.Request(url, {}, {'Content-Type': 'application/x-www-form-urlencoded'})
+        else:
+            url = config['url']
+            request = urllib2.Request(url, data, {'Content-Type': 'application/x-www-form-urlencoded'})
         request.get_method = lambda: config['method']
         request.add_header("token", token)
 
@@ -31,7 +35,7 @@ class Endpoint(object):
         json_response = json.loads(response)
 
         if log_requests:
-            sys.stdout.write("%s %s\n" % (config['method'], config['url']))
+            sys.stdout.write("%s %s\n" % (config['method'], url))
             sys.stdout.write("%s %s\n" % (json_response['codigo'], json_response['mensaje']))
             sys.stdout.write("%d bytes sent in the request's body\n" % sys.getsizeof(data))
             sys.stdout.write("%d bytes received response's body\n" % sys.getsizeof(response))
