@@ -227,3 +227,22 @@ class Brand(Endpoint):
 
 class Model(Endpoint):
     config = endpoints_config.model
+
+
+class User(Endpoint):
+    config = endpoints_config.user
+
+    @classmethod
+    def add_roles(cls, user_id, params):
+        add_roles_config = cls._replace_id('add_roles', user_id)
+        cls.request(add_roles_config, params)
+        return True
+
+    @classmethod
+    def remove_roles(cls, user_id, params):
+        remove_roles_config = cls._replace_id('remove_roles', user_id)
+        cls.request(remove_roles_config, params)
+        return True
+
+    def __repr__(self):
+        return '%s<%s, %s>' % (self.__class__.__name__, self.attrs['id'], self.attrs['name'])

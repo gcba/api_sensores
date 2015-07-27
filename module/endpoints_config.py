@@ -246,7 +246,37 @@ model = {
         "url": "%s/modelo/{id}/update"
     }
 }
+user = {
+    "get_all": {
+        "method": "GET",
+        "url": "%s/usuario"
+    },
+    "create": {
+        "method": "POST",
+        "url": "%s/usuario/create"
+    },
+    "get": {
+        "method": "GET",
+        "url": "%s/usuario/{id}"
+    },
+    "add_roles": {
+        "method": "POST",
+        "url": "%s/usuario/{id}/agregar_rol"
+    },
+    "delete": {
+        "method": "PUT",
+        "url": "%s/usuario/{id}/baja"
+    },
+    "remove_roles": {
+        "method": "DELETE",
+        "url": "%s/usuario/{id}/eliminar_rol"
+    },
+    "update": {
+        "method": "PUT",
+        "url": "%s/usuario/{id}/update"
+    }
+}
 for endpoint in [account, sensor, datatype, sensor_type, data, methodology,
-                 unit, parameter, frequency, homologation, brand, model]:
+                 unit, parameter, frequency, homologation, brand, model, user]:
     for action in endpoint:
         endpoint[action]['url'] %= base_url
