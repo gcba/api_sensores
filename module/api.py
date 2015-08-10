@@ -32,7 +32,10 @@ class Endpoint(object):
         request.add_header("token", token)
 
         response = urllib2.urlopen(request).read()
-        json_response = json.loads(response)
+        if len(response) > 0:
+            json_response = json.loads(response)
+        else:
+            json_response = {'codigo': 204, 'error': []}
 
         if log_requests:
             sys.stdout.write("%s %s\n" % (config['method'], url))
@@ -163,10 +166,6 @@ class Data(Endpoint):
 
     @classmethod
     def dynamic_create(cls, params):
-        # TODO: bad request 400 cuando el tipo de dato no matchea del todo
-        # Ej:
-        # data = api.Data.create({'id': 3, 'data':23.0, 'datatype': 'irms'}) OK
-        # data = api.Data.create({'id': 3, 'data':23, 'datatype': 'irms'}) 400
         response = cls.request(cls.config['dynamic_create'], params)
         return response
 
@@ -181,8 +180,9 @@ class Data(Endpoint):
         get_multiple_lasts_config = cls._replace_id('get_multiple_lasts', sensor_id)
         response = cls.request(get_multiple_lasts_config, params)
         data = []
-        for d in response['datos']:
-            data.append(cls(d))
+        if 'datos' in response:
+            for d in response['datos']:
+                data.append(cls(d))
         return data
 
     @classmethod
