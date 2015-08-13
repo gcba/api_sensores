@@ -170,10 +170,17 @@ class Data(Endpoint):
         return response
 
     @classmethod
-    def get_last(cls, sensor_id):
+    def get_last(cls, sensor_id, params=None):
         get_last_config = cls._replace_id('get_last', sensor_id)
-        response = cls.request(get_last_config)
-        return cls(response['datos'][0])
+        response = cls.request(get_last_config, params)
+        data = []
+        if 'datos' in response:
+            if len(response['datos']) == 1:
+                data.append(cls(response['datos'][0]))
+            if len(response['datos']) > 1:
+                for d in response['datos']:
+                    data.append(cls(d))
+        return data
 
     @classmethod
     def get_multiple_lasts(cls, sensor_id, params=None):
