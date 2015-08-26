@@ -197,8 +197,9 @@ class Data(Endpoint):
         get_config = cls._replace_id('get', sensor_id)
         response = cls.request(get_config, params)
         data = []
-        for d in response['datos']['data']:
-            data.append(cls(d))
+        if 'datos' in response:
+            for d in response['datos']['data']:
+                data.append(cls(d))
         return data
 
     def __repr__(self):
