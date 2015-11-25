@@ -6,6 +6,8 @@ import urllib
 import urllib2
 import json
 import sys
+import codecs
+sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
 log_requests = False
 token = 'token'
@@ -24,10 +26,12 @@ class Endpoint(object):
         data = urllib.urlencode(params)
         if config['method'] == 'GET':
             url = config['url'] + '?' + data
-            request = urllib2.Request(url, {}, {'Content-Type': 'application/x-www-form-urlencoded'})
+            request = urllib2.Request(
+                url, {}, {'Content-Type': 'application/x-www-form-urlencoded'})
         else:
             url = config['url']
-            request = urllib2.Request(url, data, {'Content-Type': 'application/x-www-form-urlencoded'})
+            request = urllib2.Request(
+                url, data, {'Content-Type': 'application/x-www-form-urlencoded'})
         request.get_method = lambda: config['method']
         request.add_header("token", token)
 
@@ -39,9 +43,12 @@ class Endpoint(object):
 
         if log_requests:
             sys.stdout.write("%s %s\n" % (config['method'], url))
-            sys.stdout.write("%s %s\n" % (json_response['codigo'], json_response['mensaje']))
-            sys.stdout.write("%d bytes sent in the request's body\n" % sys.getsizeof(data))
-            sys.stdout.write("%d bytes received response's body\n" % sys.getsizeof(response))
+            sys.stdout.write("%s %s\n" % (
+                json_response['codigo'], json_response['mensaje']))
+            sys.stdout.write(
+                "%d bytes sent in the request's body\n" % sys.getsizeof(data))
+            sys.stdout.write("%d bytes received response's body\n" %
+                             sys.getsizeof(response))
         if len(json_response['error']) > 0:
             raise ValueError(str(json_response['error']) + '\n')
 
@@ -184,7 +191,8 @@ class Data(Endpoint):
 
     @classmethod
     def get_multiple_lasts(cls, sensor_id, params=None):
-        get_multiple_lasts_config = cls._replace_id('get_multiple_lasts', sensor_id)
+        get_multiple_lasts_config = cls._replace_id(
+            'get_multiple_lasts', sensor_id)
         response = cls.request(get_multiple_lasts_config, params)
         data = []
         if 'datos' in response:
